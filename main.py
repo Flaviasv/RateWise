@@ -1,6 +1,8 @@
 import tkinter as tk
 from tkinter import ttk
+from tkinter import messagebox
 from calculator import calculate_total, calculate_per_person, apply_discount, calculate_after_costs
+from database import save_quote
 
 
 def calculate():
@@ -22,6 +24,27 @@ def calculate():
     result_per_person.set(f"${per_person:.2f}")
     result_discounted.set(f"${discounted:.2f}")
     result_after.set(f"${after_costs:.2f}")
+
+def save():
+    class_type_value = class_type.get()
+    hourly_rate = float(entry_rate.get())
+    hours_per_class = float(entry_hours.get())
+    classes_per_week = float(entry_classes.get())
+    weeks = float(entry_weeks.get())
+    rent = float(entry_rent.get())
+    commute = float(entry_commute.get())
+    num_people = int(entry_people.get())
+    discount = float(entry_discount.get())
+
+    total = calculate_total(hourly_rate, hours_per_class, classes_per_week, weeks, rent, commute)
+    per_person = calculate_per_person(total, num_people)
+    discounted = apply_discount(total, discount)
+    after_costs = calculate_after_costs(total, rent, commute)
+
+    save_quote(class_type_value, num_people, weeks, classes_per_week, hours_per_class,
+               rent, commute, hourly_rate, discount, total, per_person, after_costs)
+
+    messagebox.showinfo("RateWise", "Quote saved!")
 
 root = tk.Tk()
 root.title("RateWise")
@@ -74,6 +97,7 @@ entry_discount = tk.Entry(root)
 entry_discount.grid(row=8, column=1, sticky="w", padx=10, pady=5)
 
 tk.Button(root, text="Calculate", command=calculate).grid(row=9, column=0, columnspan=2, pady=10)
+tk.Button(root, text="Save Quote", command=save).grid(row=14, column=0, columnspan=2, pady=10)
 
 result_total = tk.StringVar()
 result_per_person = tk.StringVar()
